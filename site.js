@@ -3,7 +3,7 @@
    editors sign in with Google, and falls back to the bundled starting data
    when Firebase isn't set up yet or the database is still empty. */
 const FB = "https://www.gstatic.com/firebasejs/10.12.2/";
-const CHUNKS = {units: 4, stages: 2};
+const CHUNKS = {units: 4, stages: 2, site: 1};
 const numOf = id => parseInt(String(id).replace(/\D+/g, ""), 10) || 0;
 const chunkOf = (col, id) => col.charAt(0) + (numOf(id) % CHUNKS[col]);
 const $ = s => document.querySelector(s);

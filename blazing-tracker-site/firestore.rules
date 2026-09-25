@@ -1,0 +1,36 @@
+rules_version = '2';
+// Blazing:Rebirth Current Tracker: who can read and edit.
+// 1) Replace OWNER_EMAIL below with the Google account you'll sign in with (all lowercase).
+// 2) Paste this whole file into Firebase console > Firestore Database > Rules, then Publish.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null && request.auth.token.email_verified == true; }
+    function email() { return request.auth.token.email.lower(); }
+    function isOwner() { return signedIn() && email() == 'OWNER_EMAIL'; }
+    function isEditor() {
+      return isOwner() || (signedIn() && exists(/databases/$(database)/documents/editors/$(email())));
+    }
+    function isAdmin() {
+      return isOwner() || (isEditor() && get(/databases/$(database)/documents/editors/$(email())).data.role == 'admin');
+    }
+
+    // Characters and stages: anyone can view, only editors can change
+    match /units/{chunk} { allow read: if true; allow write: if isEditor(); }
+    match /stages/{chunk} { allow read: if true; allow write: if isEditor(); }
+
+    // Pictures added from the site (stored as small data URLs)
+    match /images/{id} {
+      allow read: if true;
+      allow create, update: if isEditor() && request.resource.data.data is string
+                            && request.resource.data.data.size() < 1000000;
+      allow delete: if isEditor();
+    }
+
+    // Editor list: editors can see it, admins manage it, anyone signed in can check their own entry
+    match /editors/{e} {
+      allow get: if signedIn() && e == email();
+      allow read: if isEditor();
+      allow write: if isAdmin();
+    }
+  }
+}

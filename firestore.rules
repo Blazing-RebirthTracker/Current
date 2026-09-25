@@ -1,10 +1,16 @@
 rules_version = '2';
 // Blazing:Rebirth Current Tracker: who can read and edit.
-// 1) Replace OWNER_EMAIL below with the Google account you'll sign in with (all lowercase).
+// 1) Replace OWNER_EMAIL below with the Google account you'll sign in with (all lowercase),
+//    and PROJECT_ID with your Firebase project ID (it's in firebase-config.js).
 // 2) Paste this whole file into Firebase console > Firestore Database > Rules, then Publish.
 service cloud.firestore {
   match /databases/{database}/documents {
-    function signedIn() { return request.auth != null && request.auth.token.email_verified == true; }
+    // Google accounts (verified email), or username accounts made by an admin on the project's own domain
+    function signedIn() {
+      return request.auth != null && (request.auth.token.email_verified == true
+        || (request.auth.token.firebase.sign_in_provider == 'password'
+            && request.auth.token.email.lower().matches('.*@PROJECT_ID[.]firebaseapp[.]com')));
+    }
     function email() { return request.auth.token.email.lower(); }
     function isOwner() { return signedIn() && email() == 'OWNER_EMAIL'; }
     function isEditor() {

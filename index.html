@@ -1150,7 +1150,7 @@ ul.pg-list > li::before{content:"";position:absolute;left:7px;top:.62em;width:6p
     const all = parts.join(" | ");
     if (/blazing\s+fest/i.test(all)) t.add("fest");
     if (/blazing\s+bash/i.test(all)) t.add("bash");
-    if (/ninja pearl bundle|legendary ninja festival/i.test(all) || parts.some(p => /summon/i.test(p) && !/^(rare|super rare|very rare)\s+summon$|blazing\s+(fest|bash)|legendary summon banner/i.test(p))) t.add("limited");
+    if (/ninja pearl bundle|legendary ninja festival/i.test(all) || parts.some(p => /summon/i.test(p) && !/^(rare|super rare|very rare)\s+summon$|blazing\s+(fest|bash)|legendary summon banner|ninja gods summoned/i.test(p))) t.add("limited");
     if (/showdown|clash season|clash final season|ranking reward/i.test(all)) t.add("glb");
     if (cards.some(w => w.limitBreak)) t.add("lb");
     tagCache.set(u, t); return t;

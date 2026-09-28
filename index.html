@@ -502,6 +502,39 @@ a.chip{text-decoration:none}
 .tb-pick.used{opacity:.4;cursor:default}
 .tb-pick.used:hover{border-color:var(--line)}
 .tb-pick .on{font:600 10px var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--chakra)}
+/* ---------- Tier List tab ---------- */
+.tl-els{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.tl-els button{height:40px;padding:0 14px 0 8px;border-radius:999px;border:1px solid var(--line);background:var(--surface);cursor:pointer;display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:14px;color:var(--ink-2)}
+.tl-els button img{width:26px;height:26px}
+.tl-els button:hover{color:var(--ink)}
+.tl-els button[aria-pressed="true"]{color:var(--ink);background:var(--sunken);box-shadow:inset 0 0 0 2px var(--el)}
+.tl-els button:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.tier{--tc:var(--sunken);display:inline-flex;align-items:center;justify-content:center;background:var(--tc);color:#17181c;font-weight:800}
+.tier[data-t="S+"]{--tc:#ff5e7e} .tier[data-t="S"]{--tc:#ff8a5c} .tier[data-t="A"]{--tc:#ffc05c}
+.tier[data-t="B"]{--tc:#f2e35e} .tier[data-t="C"]{--tc:#9ee07a} .tier[data-t="D"]{--tc:#7fc7ff}
+.tl-board{display:flex;flex-direction:column;gap:6px}
+.tl-row{display:grid;grid-template-columns:64px minmax(0,1fr);border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--ground);min-height:74px}
+.tl-row .tier{font-size:24px;letter-spacing:.02em}
+.tl-cells{display:flex;flex-wrap:wrap;gap:6px;padding:8px;align-content:flex-start;min-width:0}
+.tl-unit{all:unset;box-sizing:border-box;position:relative;border-radius:10px;cursor:pointer;line-height:0}
+.tl-unit .thumb{width:56px;height:56px;cursor:inherit}
+.tl-unit:hover .thumb{filter:brightness(1.1)}
+.tl-unit:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.tl-unit.sel .thumb{box-shadow:0 0 0 3px var(--chakra)}
+.tl-unit.crash .thumb{opacity:.55}
+#p-tier [draggable="true"]{-webkit-user-drag:element;user-select:none}
+#p-tier [draggable="true"] img{-webkit-user-drag:none;pointer-events:none}
+.tl-empty{align-self:center;color:var(--ink-3);font-size:13px;padding:0 6px}
+.tl-board.editing .tl-cells{cursor:copy}
+.tl-row.over{border-color:var(--chakra);box-shadow:0 0 0 1px var(--chakra)}
+.tl-none{padding:28px 12px;text-align:center;color:var(--ink-3);font-size:14px;border:1px dashed var(--line);border-radius:10px}
+.tl-pool.over{outline:2px dashed var(--chakra);outline-offset:4px;border-radius:10px}
+.tl-pickbar{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:60;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px;max-width:calc(100vw - 24px);padding:10px 12px;border-radius:14px;background:var(--surface);border:1px solid var(--line);box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.tl-pickbar .nm{font-weight:600;font-size:13px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-right:4px}
+.tl-pickbar button{height:34px;min-width:36px;padding:0 10px;border-radius:8px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-weight:700;font-size:13px;color:var(--ink)}
+.tl-pickbar button.tier{border:0;color:#17181c;background:var(--tc);min-width:40px}
+.tl-pickbar button[aria-pressed="true"]{box-shadow:0 0 0 2px var(--ink)}
+@media (max-width:560px){.tl-row{grid-template-columns:48px minmax(0,1fr);min-height:62px}.tl-row .tier{font-size:19px}.tl-unit .thumb{width:46px;height:46px}.tl-cells{gap:5px;padding:6px}.tl-els button{padding:0 10px 0 6px;font-size:13px}}
 .tb-empty{grid-column:1/-1;padding:24px 8px;text-align:center;color:var(--ink-3);font-size:14px}
 .tb-more{display:flex;justify-content:center;margin-top:12px}
 @media (max-width:560px){
@@ -712,6 +745,7 @@ details.pg-more > summary:hover{background:var(--sunken)}
     <button type="button" role="tab" id="tab-roster" aria-selected="true" aria-controls="p-roster">Roster</button>
     <button type="button" role="tab" id="tab-stages" aria-selected="false" aria-controls="p-stages" tabindex="-1">Stages</button>
     <button type="button" role="tab" id="tab-team" aria-selected="false" aria-controls="p-team" tabindex="-1">Team Builder</button>
+    <button type="button" role="tab" id="tab-tier" aria-selected="false" aria-controls="p-tier" tabindex="-1">Tier List</button>
     <button type="button" role="tab" id="tab-play" aria-selected="false" aria-controls="p-play" tabindex="-1">How to Play</button>
   </div>
 
@@ -831,6 +865,25 @@ details.pg-more > summary:hover{background:var(--sunken)}
       <p class="paste-hint active" id="sg-paste" role="status" aria-live="polite" hidden></p>
     </div>
     <div id="sg-list" class="sg-group"></div>
+  </div>
+
+  <div class="panel" id="p-tier" role="tabpanel" aria-labelledby="tab-tier" hidden>
+    <div class="tl-els" id="tl-els" role="group" aria-label="Element"></div>
+    <section class="tb-card" aria-labelledby="tl-title">
+      <div class="tb-head"><h2 id="tl-title">Tier List</h2><p id="tl-note"></p></div>
+      <div class="tl-board" id="tl-board"></div>
+      <div class="tb-actions" id="tl-actions"></div>
+      <p class="tb-msg" id="tl-msg" role="status" aria-live="polite"></p>
+    </section>
+    <section class="tb-card" id="tl-pool-card" aria-labelledby="tl-pool-title" hidden>
+      <div class="tb-pickhead"><h2 id="tl-pool-title">Characters</h2><p id="tl-pool-hint"></p></div>
+      <div class="toolbar tb-tools">
+        <input class="search" id="tl-q" type="search" placeholder="Search name or NO." aria-label="Search characters">
+        <div class="chips" id="tl-st" role="group" aria-label="Filter by result"></div>
+      </div>
+      <div class="tb-grid tl-pool" id="tl-pool"></div>
+    </section>
+    <div class="tl-pickbar" id="tl-pickbar" hidden></div>
   </div>
 
   <div class="panel" id="p-play" role="tabpanel" aria-labelledby="tab-play" hidden>
@@ -1480,7 +1533,7 @@ details.pg-more > summary:hover{background:var(--sunken)}
       setTimeout(() => { btn.textContent = label; }, 1800);
     });
   })();
-  const TABS = ["roster", "stages", "team", "play"];
+  const TABS = ["roster", "stages", "team", "tier", "play"];
   let curTab = "roster";
   function showTab(which, focus){
     curTab = TABS.includes(which) ? which : "roster";
@@ -1493,6 +1546,7 @@ details.pg-more > summary:hover{background:var(--sunken)}
     if (curTab === "team") tbRender();
     if (curTab === "stages") sgRender();
     if (curTab === "play") pgRender();
+    if (curTab === "tier") tlRender();
     try { history.replaceState(null, "", curTab === "roster" ? location.pathname + location.search : "#" + curTab); } catch {}
   }
   TABS.forEach(t => $("#tab-" + t).addEventListener("click", () => showTab(t)));
@@ -1502,6 +1556,181 @@ details.pg-more > summary:hover{background:var(--sunken)}
     const i = TABS.indexOf(curTab), n = TABS.length;
     showTab(TABS[(i + (e.key === "ArrowRight" ? 1 : n - 1)) % n], true);
   });
+
+  /* ---------- Tier List ---------- */
+  // One list per element, stored in site/tiers as {lists: {heart: {"S+": [unit ids], ...}, ...}}
+  const TL_TIERS = ["S+", "S", "A", "B", "C", "D"];
+  const TL_ELS = ["heart", "skill", "body", "bravery", "wisdom"];
+  const tl = {el: "heart", lists: null, draft: null, sel: null, q: "", st: "all", dirty: false, drag: null};
+  function tlClean(raw){
+    const out = {};
+    TL_ELS.forEach(e => { out[e] = {}; TL_TIERS.forEach(t => {
+      const a = raw && raw[e] && raw[e][t];
+      out[e][t] = Array.isArray(a) ? [...new Set(a.filter(x => typeof x === "string"))] : [];
+    }); });
+    return out;
+  }
+  tl.lists = tlClean(null);
+  const tlList = () => (tl.draft || tl.lists)[tl.el];
+  const tlUnit = id => units.find(u => u.id === id);
+  const tlTierOf = id => TL_TIERS.find(t => tlList()[t].includes(id)) || null;
+  function tlSay(t){ $("#tl-msg").textContent = t || ""; }
+  function tlMove(id, tier, beforeId){
+    if (!tl.draft) return;
+    const L = tl.draft[tl.el];
+    TL_TIERS.forEach(t => { L[t] = L[t].filter(x => x !== id); });
+    if (tier){ const a = L[tier], i = beforeId ? a.indexOf(beforeId) : -1; if (i >= 0) a.splice(i, 0, id); else a.push(id); }
+    tl.dirty = true; tlRender();
+  }
+  function tlShift(id, d){
+    const t = tlTierOf(id); if (!t || !tl.draft) return;
+    const a = tl.draft[tl.el][t], i = a.indexOf(id), j = i + d;
+    if (j < 0 || j >= a.length) return;
+    a.splice(i, 1); a.splice(j, 0, id); tl.dirty = true; tlRender();
+  }
+  function tlDropZone(node, onDrop){
+    node.addEventListener("dragover", e => { if (tl.drag){ e.preventDefault(); node.classList.add("over"); } });
+    node.addEventListener("dragleave", e => { if (!node.contains(e.relatedTarget)) node.classList.remove("over"); });
+    node.addEventListener("drop", e => { node.classList.remove("over"); if (!tl.drag) return; e.preventDefault(); const id = tl.drag; tl.drag = null; onDrop(id, e); });
+  }
+  function tlDraggable(b, u){
+    b.draggable = true;
+    b.addEventListener("dragstart", e => { tl.drag = u.id; try { e.dataTransfer.setData("text/plain", u.id); e.dataTransfer.effectAllowed = "move"; } catch {} });
+    b.addEventListener("dragend", () => { tl.drag = null; document.querySelectorAll("#p-tier .over").forEach(x => x.classList.remove("over")); });
+  }
+  // Divs acting as buttons, since browsers won't drag real <button>s
+  function tlBtn(cls){
+    const b = el("div", cls); b.setAttribute("role", "button"); b.tabIndex = 0;
+    b.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); b.click(); } });
+    return b;
+  }
+  function tlPick(u){ tl.sel = tl.sel === u.id ? null : u.id; tlRender(); }
+  function tlChip(u, editing){
+    const b = tlBtn("tl-unit" + (u.status === "crashes" ? " crash" : ""));
+    b.append(tbThumb(u)); b.dataset.id = u.id;
+    const lab = "No. " + fmtNos(u) + " " + u.name + (u.status === "crashes" ? " (Error/Crash)" : "");
+    b.title = u.name + " · No. " + fmtNos(u); b.setAttribute("aria-label", lab);
+    if (editing){
+      if (tl.sel === u.id){ b.classList.add("sel"); b.setAttribute("aria-pressed", "true"); }
+      b.addEventListener("click", e => { e.stopPropagation(); tlPick(u); });
+      tlDraggable(b, u);
+    } else b.addEventListener("click", () => openChar(u.id));
+    return b;
+  }
+  function tlRender(){
+    if (tl.draft && !editable()){ tl.draft = null; tl.sel = null; tl.dirty = false; }
+    const editing = !!tl.draft, L = tlList();
+    document.querySelectorAll("#tl-els [data-el]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.el === tl.el)));
+    $("#tl-title").textContent = EL[tl.el] + " Tier List";
+    $("#tl-note").textContent = editing
+      ? "Tap a character to pick it, then choose a tier in the bar at the bottom. On a computer you can also drag them. Save when you're done."
+      : "Best to worst for " + EL[tl.el] + " teams. Tap a character to open their page.";
+    const board = $("#tl-board"); board.textContent = ""; board.classList.toggle("editing", editing);
+    const placed = TL_TIERS.reduce((n, t) => n + L[t].filter(tlUnit).length, 0);
+    if (!placed && !editing){
+      board.append(el("div", "tl-none", "No " + EL[tl.el] + " tier list yet." + (editable() ? " Tap Edit tier list to start one." : "")));
+    } else TL_TIERS.forEach(t => {
+      const row = el("div", "tl-row"); row.dataset.t = t;
+      const lb = el("div", "tier", t); lb.dataset.t = t;
+      const cells = el("div", "tl-cells");
+      const ids = L[t].filter(tlUnit);
+      ids.forEach(id => cells.append(tlChip(tlUnit(id), editing)));
+      if (!ids.length) cells.append(el("span", "tl-empty", editing ? (tl.sel ? "Tap to put it here" : "Empty") : "—"));
+      if (editing){
+        row.addEventListener("click", e => { if (tl.sel && !e.target.closest(".tl-unit")){ const id = tl.sel; tl.sel = null; tlMove(id, t); } });
+        tlDropZone(row, (id, e) => { const on = e.target.closest(".tl-unit"); tlMove(id, t, on && on.dataset.id !== id ? on.dataset.id : null); });
+      }
+      row.append(lb, cells); board.append(row);
+    });
+    // Actions
+    const act = $("#tl-actions"); act.textContent = "";
+    if (editing){
+      const sv = el("button", "btn primary", "Save"); sv.type = "button"; sv.addEventListener("click", tlSave);
+      const cn = el("button", "btn", "Cancel"); cn.type = "button"; cn.addEventListener("click", () => { tl.draft = null; tl.sel = null; tl.dirty = false; tlSay(""); tlRender(); });
+      const cl = el("button", "btn", "Clear " + EL[tl.el]); cl.type = "button";
+      cl.addEventListener("click", () => { TL_TIERS.forEach(t => { tl.draft[tl.el][t] = []; }); tl.sel = null; tl.dirty = true; tlSay(EL[tl.el] + " cleared. Save to keep it that way, or Cancel."); tlRender(); });
+      act.append(sv, cn, cl);
+      if (tl.dirty) act.append(el("span", "tl-empty", "Unsaved changes"));
+    } else if (editable()){
+      const ed = el("button", "btn", "Edit tier list"); ed.type = "button";
+      ed.addEventListener("click", () => { tl.draft = JSON.parse(JSON.stringify(tl.lists)); tl.sel = null; tl.dirty = false; tlSay(""); tlRender(); });
+      act.append(ed);
+    }
+    act.hidden = !act.childNodes.length;
+    // Character pool (editing only)
+    const card = $("#tl-pool-card"); card.hidden = !editing;
+    if (editing){
+      $("#tl-pool-hint").textContent = EL[tl.el] + " characters not in the list yet. Tap one, then pick a tier. Drag a character here to take it off the list.";
+      document.querySelectorAll("#tl-st [data-st]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.st === tl.st)));
+      const inList = new Set(TL_TIERS.flatMap(t => L[t]));
+      const q = tl.q.trim().toLowerCase().replace(/^no\.?\s*/, "");
+      const rows = units.filter(u => u.element === tl.el && !inList.has(u.id) && (tl.st === "all" || u.status === tl.st) &&
+        (!q || nosOf(u).some(n => String(n).includes(q)) || (u.name || "").toLowerCase().includes(q))).sort((a, b) => b.no - a.no);
+      const pool = $("#tl-pool"); pool.textContent = "";
+      if (!rows.length) pool.append(el("div", "tb-empty", "No characters left to place."));
+      rows.forEach(u => {
+        const b = tlBtn("tb-pick");
+        const [nm, epi] = splitName(u.name), st = ST[u.status] ? u.status : "untested";
+        b.append(el("span", "sdot " + st), tbThumb(u), el("small", null, "No. " + fmtNos(u)), el("span", "nm", nm));
+        if (epi) b.append(el("span", "ep", epi));
+        if (tl.sel === u.id){ b.style.borderColor = "var(--chakra)"; b.style.boxShadow = "0 0 0 2px var(--chakra)"; }
+        b.setAttribute("aria-label", "No. " + fmtNos(u) + " " + u.name + ", " + ST[st]);
+        b.addEventListener("click", () => tlPick(u));
+        tlDraggable(b, u);
+        pool.append(b);
+      });
+    }
+    // Pick bar
+    const bar = $("#tl-pickbar"); bar.textContent = "";
+    const su = editing && tl.sel ? tlUnit(tl.sel) : null;
+    bar.hidden = !su;
+    if (su){
+      const cur = tlTierOf(su.id);
+      bar.append(el("span", "nm", splitName(su.name)[0]));
+      TL_TIERS.forEach(t => {
+        const b = el("button", "tier", t); b.type = "button"; b.dataset.t = t; b.setAttribute("aria-pressed", String(cur === t));
+        b.setAttribute("aria-label", "Put in " + t);
+        b.addEventListener("click", () => { tl.sel = null; tlMove(su.id, t); });
+        bar.append(b);
+      });
+      if (cur){
+        const lf = el("button", null, "←"); lf.type = "button"; lf.setAttribute("aria-label", "Move left"); lf.addEventListener("click", () => tlShift(su.id, -1));
+        const rt = el("button", null, "→"); rt.type = "button"; rt.setAttribute("aria-label", "Move right"); rt.addEventListener("click", () => tlShift(su.id, 1));
+        const rm = el("button", null, "Remove"); rm.type = "button"; rm.addEventListener("click", () => { tl.sel = null; tlMove(su.id, null); });
+        bar.append(lf, rt, rm);
+      }
+      const x = el("button", null, "✕"); x.type = "button"; x.setAttribute("aria-label", "Done"); x.addEventListener("click", () => { tl.sel = null; tlRender(); });
+      bar.append(x);
+    }
+  }
+  async function tlSave(){
+    if (!db || !tl.draft) return;
+    const lists = tlClean(tl.draft);
+    try {
+      await db.collection("site").doc("tiers").set({lists, updated: Date.now()});
+      tl.lists = lists; tl.draft = null; tl.sel = null; tl.dirty = false; tlSay("Tier list saved.");
+    } catch(e){ tlSay(errText(e)); }
+    tlRender();
+  }
+  (function(){
+    const box = $("#tl-els");
+    TL_ELS.forEach(k => {
+      const b = el("button"); b.type = "button"; b.dataset.el = k; b.style.setProperty("--el", "var(--" + k + ")");
+      const im = el("img"); im.src = EL_IMG[k]; im.alt = ""; b.append(im, EL[k]);
+      b.addEventListener("click", () => { tl.el = k; tl.sel = null; tlRender(); });
+      box.append(b);
+    });
+    const st = $("#tl-st");
+    [["all", "All"], ["works", "Working only"], ["crashes", "Error/Crash"], ["untested", "Untested"]].forEach(([k, lab]) => {
+      const b = el("button", "chip"); b.type = "button"; b.dataset.st = k;
+      if (k !== "all"){ const d = el("span", "dot"); d.style.color = "var(--" + (k === "works" ? "ok" : k === "crashes" ? "bad" : "wait") + ")"; b.append(d); }
+      b.append(lab); b.addEventListener("click", () => { tl.st = k; tlRender(); });
+      st.append(b);
+    });
+    $("#tl-q").addEventListener("input", e => { tl.q = e.target.value; tlRender(); const q = $("#tl-q"); q.focus(); });
+    tlDropZone($("#tl-pool"), id => { if (tl.sel === id) tl.sel = null; tlMove(id, null); });
+    document.addEventListener("keydown", e => { if (e.key === "Escape" && curTab === "tier" && tl.sel){ tl.sel = null; tlRender(); } });
+  })();
 
   /* ---------- How to Play ---------- */
   // Editable guide: stored as simple text in site/guide, with a built-in first version
@@ -1953,7 +2182,7 @@ details.pg-more > summary:hover{background:var(--sunken)}
   // Header totals: characters on Roster/Team Builder, stages (in the game now) on the Stages tab
   function updateTally(){
     const tally = $(".tally");
-    tally.hidden = curTab === "play";
+    tally.hidden = curTab === "play" || curTab === "tier";
     if (curTab === "stages"){
       const all = stages.filter(e => e.live !== false).flatMap(e => (e.stages || []).length ? e.stages.map(x => stOf(x.st)) : [stOf(e.status)]);
       const n = k => all.filter(x => x === k).length;
@@ -2393,7 +2622,7 @@ details.pg-more > summary:hover{background:var(--sunken)}
   });
 
   $("#more").addEventListener("click", () => { shown += PAGE; render(); });
-  if (["#team", "#stages", "#play"].includes(location.hash)) showTab(location.hash.slice(1));
+  if (["#team", "#stages", "#tier", "#play"].includes(location.hash)) showTab(location.hash.slice(1));
   render();
 
   if (REPORT.base){ const ra = $("#report-any"); ra.href = REPORT.base + "?usp=pp_url"; ra.hidden = false; }
@@ -2405,8 +2634,8 @@ details.pg-more > summary:hover{background:var(--sunken)}
     const ft = document.querySelector(".foot span:last-child"); if (ft) ft.textContent = "Fan-made tracker. Last updated " + SNAP.date + ".";
   }
   // Hooks for the GitHub site's sign-in: switch edit access live, and redraw once a picture arrives
-  window.__BLAZING_SETROLE__ = v => { canWrite = !!v; applyRole(); if (charId && !cview.hidden) renderChar(); if (curTab === "stages") sgRender(); };
-  window.__BLAZING_RERENDER__ = () => { render(); if (charId && !cview.hidden) renderChar(); if (curTab === "stages") sgRender(); if (curTab === "team") tbRender(); if (curTab === "play") pgRender(); };
+  window.__BLAZING_SETROLE__ = v => { canWrite = !!v; applyRole(); if (charId && !cview.hidden) renderChar(); if (curTab === "stages") sgRender(); if (curTab === "tier") tlRender(); };
+  window.__BLAZING_RERENDER__ = () => { render(); if (charId && !cview.hidden) renderChar(); if (curTab === "stages") sgRender(); if (curTab === "team") tbRender(); if (curTab === "play") pgRender(); if (curTab === "tier") tlRender(); };
   const useUser = cuse("user");
   useUser.then(u => u ? u.isOwner() : null).then(o => {
     canWrite = SNAP ? false : o === null ? true : o;
@@ -2422,6 +2651,7 @@ details.pg-more > summary:hover{background:var(--sunken)}
         .filter(u => typeof u.no === "number");
       conn.textContent = "Saved · synced";
       render();
+      if (curTab === "tier") tlRender();
       if (!hashTried){ hashTried = true; openFromHash(); }
       else if (charId && !cview.hidden) renderChar();
     }, err => {
@@ -2446,6 +2676,8 @@ details.pg-more > summary:hover{background:var(--sunken)}
       discordUrl = d.discord ? pgDiscord(d.discord.url) : "";
       pgApplyDiscord();
       if (!pgEditing) pgRender();
+      tl.lists = tlClean(d.tiers && d.tiers.lists);
+      if (curTab === "tier") tlRender();
     }, () => {});
   }).catch(() => {});
 
@@ -2867,6 +3099,9 @@ details.pg-more > summary:hover{background:var(--sunken)}
   const PATCHES = [
     {v: "2", upcoming: true, items: [
       "Coming with the next Blazing:Rebirth update"
+    ]},
+    {v: "1.5", date: "September 27, 2026", items: [
+      "Added a Tier List tab with a separate list for each element. Editors can arrange them"
     ]},
     {v: "1.4", date: "September 27, 2026", items: [
       "Added step-by-step pictures to the iPhone guide",
